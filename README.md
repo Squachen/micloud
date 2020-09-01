@@ -44,11 +44,6 @@ This is a very early release where you can fetch device information.
 
 I’m new to python so the code quality might be poor until I get up to speed with standards and common practices.
 
-
-
-# for tests: pytest-dotenv and nose2
-
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
