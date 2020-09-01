@@ -30,11 +30,8 @@
 
 * [About the Project](#about-the-project)
 * [Usage](#usage)
-* [Roadmap](#roadmap)
-* [Contributing](#contributing)
 * [License](#license)
 * [Contact](#contact)
-* [Acknowledgements](#acknowledgements)
 
 
 ## About The Project
@@ -63,7 +60,7 @@ As of right now there's not much you can do. You can login and get device info f
 ```Python
 from micloud import MiCloud
 
-mc = MiCloud(o"USERNAME", "PASSWORD")
+mc = MiCloud("USERNAME", "PASSWORD")
 mc.login()
 token = mc.get_token() # to get your cloud service token.
 device_list = mc.get_devices() # get list of devices
@@ -79,7 +76,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!-- CONTACT -->
 ## Contact
 
-Sammy Svensson - [@@S_Svensson](https://twitter.com/@S_Svensson) - sammy@ssvensson.se
+Sammy Svensson - [@S_Svensson](https://twitter.com/@S_Svensson) - sammy@ssvensson.se
 
 Project Link: [https://github.com/squachen/micloud](https://github.com/squachen/micloud)
 
