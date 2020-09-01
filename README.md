@@ -97,16 +97,16 @@ Project Link: [https://github.com/squachen/micloud](https://github.com/squachen/
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/squachen/repo.svg?style=flat-square
-[contributors-url]: https://github.com/squachen/repo/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/Squachen/repo.svg?style=flat-square
-[forks-url]: https://github.com/squachen/repo/network/members
-[stars-shield]: https://img.shields.io/github/stars/squachen/repo.svg?style=flat-square
-[stars-url]: https://github.com/squachen/repo/stargazers
-[issues-shield]: https://img.shields.io/github/issues/squachen/repo.svg?style=flat-square
-[issues-url]: https://github.com/squachen/repo/issues
-[license-shield]: https://img.shields.io/github/license/squachen/repo.svg?style=flat-square
-[license-url]: https://github.com/squachen/repo/blob/master/LICENSE.txt
+[contributors-shield]: https://img.shields.io/github/contributors/squachen/micloud.svg?style=flat-square
+[contributors-url]: https://github.com/squachen/micloud/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Squachen/micloud.svg?style=flat-square
+[forks-url]: https://github.com/squachen/micloud/network/members
+[stars-shield]: https://img.shields.io/github/stars/squachen/micloud.svg?style=flat-square
+[stars-url]: https://github.com/squachen/micloud/stargazers
+[issues-shield]: https://img.shields.io/github/issues/squachen/micloud.svg?style=flat-square
+[issues-url]: https://github.com/squachen/micloud/issues
+[license-shield]: https://img.shields.io/github/license/squachen/micloud.svg?style=flat-square
+[license-url]: https://github.com/squachen/micloud/blob/master/LICENSE.txt
 [linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/Squachen
 [product-screenshot]: images/screenshot.png
