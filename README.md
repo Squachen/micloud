@@ -24,16 +24,6 @@
 </p>
 
 
-
-<!-- TABLE OF CONTENTS -->
-## Table of Contents
-
-* [About the Project](#about-the-project)
-* [Usage](#usage)
-* [License](#license)
-* [Contact](#contact)
-
-
 ## About The Project
 
 Simple implementation for logging in to your Xiaomi cloud account.
@@ -64,6 +54,14 @@ mc = MiCloud("USERNAME", "PASSWORD")
 mc.login()
 token = mc.get_token() # to get your cloud service token.
 device_list = mc.get_devices() # get list of devices
+```
+To query a different server, use the country argument:
+```Python
+device_list = mc.get_devices(country="cn")
+```
+And to save the device list as json:
+```Python
+mc.get_devices(country="cn", save=True, file="devices.json")
 ```
 
 <!-- LICENSE -->
