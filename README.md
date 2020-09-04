@@ -45,12 +45,13 @@ $ pip install micloud
 You can use micloud in your project or directly from the terminal.
 #### In terminal:
 ```
-Usage: micloud [OPTIONS] USERNAME PASSWORD
+Usage: micloud [OPTIONS]
 
 Options:
-  --country TEXT  Language code of the server to query. Default: "de"
-  --pretty        Pretty print json output.
-  --help          Show this message and exit.
+  -u, --username TEXT  Your Xiaomi username.
+  -c, --country TEXT   Language code of the server to query. Default: "de"
+  --pretty             Pretty print json output.
+  --help               Show this message and exit.
 ```
 <img src="https://raw.githubusercontent.com/Squachen/micloud/master/docs/cli_example1.png" width="500">
 
