@@ -52,7 +52,7 @@ Options:
   --pretty        Pretty print json output.
   --help          Show this message and exit.
 ```
-
+<img src="https://raw.githubusercontent.com/Squachen/micloud/master/docs/cli_example1.png" width="500">
 
 #### In code:
 As of right now there's not much you can do. You can login and get device info from Xiaomi cloud:
