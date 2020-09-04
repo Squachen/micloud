@@ -6,15 +6,21 @@ except ImportError:
 setup(
     name = 'micloud',
     packages = ['micloud'],
-    version = '0.1',
+    include_package_data=True,
+    version = '0.2',
     license='MIT',
     description = 'Xiaomi cloud connect library',
     author = 'Sammy Svensson',
     author_email = 'sammy@ssvensson.se',
     url = 'https://github.com/squachen/micloud',
-    download_url = 'https://github.com/Squachen/micloud/archive/v_0.1.tar.gz',
+    download_url = 'https://github.com/Squachen/micloud/archive/v_0.2.tar.gz',
     install_requires=[
         'requests',
-        'tzlocal'
-    ]
+        'tzlocal',
+        'click'
+    ],
+    entry_points='''
+        [console_scripts]
+        micloud=micloud.cli:get_devices
+    ''',
 )

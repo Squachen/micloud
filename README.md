@@ -26,10 +26,8 @@
 
 ## About The Project
 
-Simple implementation for logging in to your Xiaomi cloud account.
-This is a very early release where you can fetch device information.
+Simple implementation for logging in to your Xiaomi cloud account and fetch device information.
 
-I’m new to python so the code quality might be poor until I get up to speed with standards and common practices.
 
 <!-- USAGE EXAMPLES -->
 ## Usage
@@ -44,9 +42,20 @@ $ pip install micloud
 ```
 
 ### Using it
+You can use micloud in your project or directly from the terminal.
+#### In terminal:
+```
+Usage: micloud [OPTIONS] USERNAME PASSWORD
 
+Options:
+  --country TEXT  Language code of the server to query. Default: "de"
+  --pretty        Pretty print json output.
+  --help          Show this message and exit.
+```
+
+
+#### In code:
 As of right now there's not much you can do. You can login and get device info from Xiaomi cloud:
-
 ```Python
 from micloud import MiCloud
 
@@ -93,6 +102,4 @@ Project Link: [https://github.com/squachen/micloud](https://github.com/squachen/
 [issues-url]: https://github.com/squachen/micloud/issues
 [license-shield]: https://img.shields.io/github/license/squachen/micloud.svg?style=flat-square
 [license-url]: https://github.com/squachen/micloud/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=flat-square&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/Squachen
-[product-screenshot]: images/screenshot.png
+
