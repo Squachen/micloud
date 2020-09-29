@@ -240,7 +240,7 @@ class MiCloud():
             logging.info("Error while parsing devices: %s", str(e))
 
 
-    def get_map_url(self, country=None, map_id=None):
+    def download_vacuum_map(self, country=None, map_id=None):
 
          if not country:
                  country = self.default_server
