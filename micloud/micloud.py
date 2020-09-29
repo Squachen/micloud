@@ -240,6 +240,42 @@ class MiCloud():
             logging.info("Error while parsing devices: %s", str(e))
 
 
+    def get_map_url(self, country=None, map_id=None):
+
+         if not country:
+                 country = self.default_server
+
+         url = self._get_api_url(country) + "/home/getmapfileurl"
+         params = {'data': "{\"obj_name\":\"" + map_id + "\"}"}
+         try:
+            resp = self.request(url, params)
+            print("Get vacuumMap response: %s", resp)
+            if len(resp) > 2:
+                json_resp = json.loads(resp)
+                if not json_resp['result'] is None:
+                  self._download_map(json_resp['result']['url'])
+                  return resp
+                else:
+                  logging.error("%s", str(json_resp))
+         except MiCloudException as e:
+            logging.error("%s", str(e))
+         return None
+
+    def _download_map(self, url=None):
+         try:
+            logging.debug("Try download map")
+            resp = requests.get(url, auth=(self.username, self.password))
+
+            logging.debug("Get vacuumMap response: %s", resp)
+            if (resp.status_code == 200):
+
+               open("map.rrmap", 'wb').write(resp.content)
+               logging.debug('RRMap file %s successfully Downloaded: ',"map.rrmap")
+               return resp
+         except MiCloudException as e:
+            logging.error("%s", str(e))
+         return None
+
     def _get_device_string(self, country):
         if not country:
             country = self.default_server

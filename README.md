@@ -73,7 +73,10 @@ And to save the device list as json:
 ```Python
 mc.get_devices(country="cn", save=True, file="devices.json")
 ```
-
+And to save the vacuum map as rrmap:
+```Python
+mc.get_map_url(country="ru", map_id="rubyslite%2F322185180%2F0") # get binary map of vacuum
+```
 <!-- LICENSE -->
 ## License
 
