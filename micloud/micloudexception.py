@@ -16,3 +16,15 @@ class MiCloudException(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
+
+
+class MiCloudAccessDenied(Exception):
+    """Exception raised for wrong credentials in the micloud library.
+
+    Attributes:
+        message -- explanation of the error
+    """
+
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)

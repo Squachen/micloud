@@ -15,7 +15,7 @@ import tzlocal
 import requests
 
 from micloud import miutils
-from micloud.micloudexception import MiCloudException
+from micloud.micloudexception import MiCloudAccessDenied, MiCloudException
 
 
 class MiCloud():
@@ -82,6 +82,14 @@ class MiCloud():
                 logging.info("Repeated errors logging on to Xiaomi cloud. Cleaning stored cookies")
                 self.self._init_session(reset=True)
             return False
+        except MiCloudAccessDenied as e:
+            logging.info("Error logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
+            self.failed_logins += 1
+            self.service_token = None
+            if self.failed_logins > 10:
+                logging.info("Repeated errors logging on to Xiaomi cloud. Cleaning stored cookies")
+                self.self._init_session(reset=True)
+            raise e
         except:
             logging.exception("Unknown exception occurred!")
             return False
@@ -100,7 +108,7 @@ class MiCloud():
 
             response3 = self._login_step3(location)
             if response3.status_code == 403:
-                raise MiCloudException("Access denied. Did you set the correct api key and/or username?")
+                raise MiCloudAccessDenied("Access denied. Did you set the correct api key and/or username?")
             elif response3.status_code == 200:
                 logging.debug("Your service token: %s", self.service_token)
                 return True
