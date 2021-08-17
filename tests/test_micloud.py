@@ -3,18 +3,17 @@ import logging
 import os, json
 
 from micloud import MiCloud
+from micloud.micloudexception import MiCloudAccessDenied
 from tests.configuration import setup_testing_environment
 
 setup_testing_environment()
 
 class TestMiCloud(unittest.TestCase):
 
-    """def test_login_success(self):
-        mc = MiCloud(os.getenv("USERNAME"), os.getenv("PASSWORD"))
-        f = open("tests.txt", "w")
-        f.write("Now the file has more content!")
-        f.close()
-        self.assertTrue(mc.login())"""
+    # Will fail of network errors makes the login fail.
+    def test_login_access_denied(self):
+        mc = MiCloud('DEFFNOTAUSER', 'DEFFWRONGPW')
+        self.assertRaises(MiCloudAccessDenied, mc.login)
 
     def test_get_devices(self):
         mc = MiCloud(os.getenv("USERNAME"), os.getenv("PASSWORD"))
@@ -26,7 +25,7 @@ class TestMiCloud(unittest.TestCase):
         self.assertIsNotNone(res)
         self.assertTrue(type(res)==list)
 
-        
+    
         
 
 if __name__ == '__main__':  
