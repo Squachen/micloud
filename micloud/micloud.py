@@ -83,7 +83,7 @@ class MiCloud():
                 self.self._init_session(reset=True)
             return False
         except MiCloudAccessDenied as e:
-            logging.info("Error logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
+            logging.info("Access denied when logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
             self.failed_logins += 1
             self.service_token = None
             if self.failed_logins > 10:
