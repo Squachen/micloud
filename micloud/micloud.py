@@ -83,7 +83,7 @@ class MiCloud():
                 self.self._init_session(reset=True)
             return False
         except MiCloudAccessDenied as e:
-            logging.info("Error logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
+            logging.info("Access denied when logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
             self.failed_logins += 1
             self.service_token = None
             if self.failed_logins > 10:
@@ -116,6 +116,8 @@ class MiCloud():
                 logging.debug("request returned status '%s', reason: %s, content: %s", response3.status_code,
                     response3.reason, response3.text)
                 raise MiCloudException(response3.status_code + response3.reason)
+        except MiCloudAccessDenied as e:
+            raise e
         except Exception as e:
             raise MiCloudException("Cannot logon to Xiaomi cloud: " + str(e))
 
@@ -174,6 +176,9 @@ class MiCloud():
 
         logging.debug("Xiaomi login step 2 response code: %s", response.status_code)
         logging.debug("Xiaomi login step 2 response: %s", json.dumps(response_json))
+
+        if response_json['result'] != "ok":
+            raise MiCloudAccessDenied("Access denied. Did you set the correct api key and/or username?")
 
         self.user_id = response_json['userId']
         self.ssecurity = response_json['ssecurity']
