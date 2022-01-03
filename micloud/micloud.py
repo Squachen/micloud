@@ -52,10 +52,11 @@ class MiCloud():
         """Return the servie token if you have successfully logged in."""
         return self.service_token
 
+
     def _check_credentials(self):
         return (self.username and self.password)
 
-    
+
     def login(self):
         """Login in to Xiaomi cloud.
 
@@ -130,7 +131,7 @@ class MiCloud():
                 'sdkVersion': '3.8.6',
                 'deviceId': self.client_id
             })
-    
+
 
     def _login_step1(self):
         logging.debug("Xiaomi login step 1")
@@ -213,7 +214,7 @@ class MiCloud():
         service_token = response.cookies['serviceToken']
         if service_token:
             self.service_token = service_token
-        
+
         return response
 
 
@@ -230,12 +231,11 @@ class MiCloud():
 
         if not country:
             country = self.default_server
-        
+
         response = self._get_device_string(country)
         if not response:
             return None
 
-        devicesList = {}
         try:
             json_resp = json.loads(response)
             logging.debug('Devices data: %s', response)
@@ -256,9 +256,11 @@ class MiCloud():
     def _get_device_string(self, country):
         if not country:
             country = self.default_server
-        
+
         url = self._get_api_url(country) + "/home/device_list"
-        params = {'data': "{\"getVirtualModel\":false,\"getHuamiDevices\":0}"}
+        params = {
+            'data': '{"getVirtualModel":true,"getHuamiDevices":1,"get_split_device":false,"support_smart_home":true}'
+        }
         try:
             resp = self.request(url, params)
             logging.debug("Get devices response: %s", resp)
@@ -270,10 +272,10 @@ class MiCloud():
 
 
     def _get_api_url(self, country):
-        return "https://" + ("" if country.strip().lower() ==  "cn" else country.strip().lower() + ".") + "api.io.mi.com/app"
+        return "https://" + ("" if country.strip().lower() == "cn" else country.strip().lower() + ".") + "api.io.mi.com/app"
 
 
-    def request_country(self, url_part, country, params):        
+    def request_country(self, url_part, country, params):
         url = self._get_api_url(country) + url_part
         response = self.request(url, params)
         logging.debug("Request to %s server %s. Response: %s", country, url_part, response)
@@ -284,13 +286,15 @@ class MiCloud():
         if not self.service_token or not self.user_id:
             raise MiCloudException("Cannot execute request. service token or userId missing. Make sure to login.")
 
-        self.session = requests.Session()
-        self.session.headers.update({'User-Agent': self.useragent})
-
         logging.debug("Send request: %s to %s", params['data'], url)
+
+        self.session = requests.Session()
         self.session.headers.update({
+            'User-Agent': self.useragent,
+            'Accept-Encoding': 'identity',
             'x-xiaomi-protocal-flag-cli': 'PROTOCAL-HTTP2',
-            'content-type': 'application/x-www-form-urlencoded'
+            'content-type': 'application/x-www-form-urlencoded',
+            'MIOT-ENCRYPT-ALGORITHM': 'ENCRYPT-RC4'
         })
         self.session.cookies.update({
             'userId': str(self.user_id),
@@ -307,20 +311,14 @@ class MiCloud():
 
         try:
             nonce = miutils.gen_nonce()
-            signed_nonce = miutils.signed_nonce(self.ssecurity, nonce)
-            signature = miutils.gen_signature(url.replace("/app", ""), signed_nonce, nonce, params)
+            signed_nonce = miutils.signed_nonce(self.ssecurity, nonce) 
+            post_data = miutils.generate_enc_params(url, "POST", signed_nonce, nonce, params, self.ssecurity)
 
-            post_data = {
-                'signature': signature,
-                '_nonce': nonce,
-                'data': params['data']
-            }
-            
             response = self.session.post(url, data = post_data)
             if response.status_code == 403:
                 self.service_token = None
 
-            return response.text
+            return miutils.decrypt_rc4(miutils.signed_nonce(self.ssecurity, post_data["_nonce"]), response.text)
         except requests.exceptions.HTTPError as e:
             self.service_token = None
             logging.exception("Error while executing request to %s :%s", url, str(e))

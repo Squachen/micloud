@@ -8,18 +8,18 @@
 
 import time
 import random
-import sys
 import hashlib, hmac, base64
 import string
 from urllib.parse import urlparse
+from Crypto.Cipher import ARC4
 
 from micloud.micloudexception import MiCloudException
 
 
 def get_random_agent_id():
-        letters = 'ABCDEF'
-        result_str = ''.join(random.choice(letters) for i in range(13))
-        return result_str
+    letters = 'ABCDEF'
+    result_str = ''.join(random.choice(letters) for i in range(13))
+    return result_str
 
 
 def get_random_string(length):
@@ -73,3 +73,43 @@ def gen_signature(url, signed_nonce, nonce, params):
     signature = hmac.new(base64.b64decode(bytes(signed_nonce, 'utf-8')), msg = bytes(sign, 'utf-8'), digestmod = hashlib.sha256).digest()
     base64_bytes = base64.b64encode(signature)
     return base64_bytes.decode('utf-8')
+
+
+def gen_enc_signature(url, method, signed_nonce, params):
+    signature_params = [
+        str(method).upper(),
+        url.split("com")[1].replace("/app/", "/")
+    ]
+
+    for k, v in params.items():
+        signature_params.append(f"{k}={v}")
+
+    signature_params.append(signed_nonce)
+    signature_string = "&".join(signature_params)
+    return base64.b64encode(hashlib.sha1(signature_string.encode('utf-8')).digest()).decode()
+
+
+def generate_enc_params(url, method, signed_nonce, nonce, params, ssecurity):
+    params['rc4_hash__'] = gen_enc_signature(url, method, signed_nonce, params)
+
+    for k, v in params.items():
+        params[k] = encrypt_rc4(signed_nonce, v)
+
+    params.update({
+        'signature': gen_enc_signature(url, method, signed_nonce, params),
+        'ssecurity': ssecurity,
+        '_nonce': nonce,
+    })
+    return params
+
+
+def encrypt_rc4(password, payload):
+    r = ARC4.new(base64.b64decode(password))
+    r.encrypt(bytes(1024))
+    return base64.b64encode(r.encrypt(payload.encode())).decode()
+
+
+def decrypt_rc4(password, payload):
+    r = ARC4.new(base64.b64decode(password))
+    r.encrypt(bytes(1024))
+    return r.encrypt(base64.b64decode(payload))
