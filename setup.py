@@ -17,7 +17,8 @@ setup(
     install_requires=[
         'requests',
         'tzlocal',
-        'click'
+        'click',
+        'pycryptodome'
     ],
     entry_points='''
         [console_scripts]
