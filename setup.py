@@ -22,6 +22,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        micloud=micloud.cli:get_devices
+        micloud=micloud.cli:cli
     ''',
 )

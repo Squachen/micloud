@@ -18,9 +18,18 @@ from micloud import miutils
 from micloud.micloudexception import MiCloudAccessDenied, MiCloudException
 
 
+MIOTSPEC_BASE_URL = "https://miot-spec.org/miot-spec-v2"
+# A dictionary consisting of miot standard types and their singular form
+MIOT_STANDARD_TYPES = {"devices": "device",
+                       "services": "service",
+                       "properties": "property",
+                       "actions": "action",
+                       "events": "event"
+}
+
 class MiCloud():
 
-    def __init__(self, username, password):
+    def __init__(self, username=None, password=None):
         super().__init__()
         self.user_id =       None
         self.service_token = None
@@ -42,10 +51,10 @@ class MiCloud():
         self.default_server = 'de' # Sets default server to Europe.
         self.username = username
         self.password = password
-        if not self._check_credentials():
-            raise MiCloudException("username or password can't be empty")
 
         self.client_id = miutils.get_random_string(6)
+
+
 
 
     def get_token(self):
@@ -63,6 +72,7 @@ class MiCloud():
         :return: True if login successful, False otherwise.
         """
         if not self._check_credentials():
+            logging.error("You need to define username and password to log in")
             return False
 
         if self.user_id and self.service_token:
@@ -326,3 +336,82 @@ class MiCloud():
             logging.exception("Error while decrypting response of request to %s :%s", url, str(e))
         except Exception as e:
             logging.exception("Error while executing request to %s :%s", url, str(e))
+
+
+    def miot_get_specs(self, status="released"):
+        """Return information about all available miotspec implementations.
+
+        Note that every model may appear multiple times using different version in the response.
+
+        Use :meth:`miot_get_schema_for_urn` to download the miotspec schema file based on the urn.
+
+        :param status: filter by status, "released", "debug", "preview", "all", defaults to "released"
+        """
+        self._init_session(reset=True)
+        url = f"{MIOTSPEC_BASE_URL}/instances?status={status}"
+
+        AVAILABLE_STATUSES = ["released", "debug", "preview", "all"]
+        if status not in AVAILABLE_STATUSES:
+            raise MiCloudException("Unknown release status %s" % status)
+
+        logging.debug("Going to download specs listing with status %s" % status)
+
+        response = self.session.get(url)
+        return response.json()
+
+
+    def miot_get_spec(self, device_urn: str):
+        """Return miotspec device schema for the given device URN.
+
+        The returned dict contains information about all services, properties, actions, events etc.
+        the device has been reported to support.
+
+        :meth:`miot_get_available_schemas` can be used to return a list of all available URNs.
+        """
+        self._init_session(reset=True)
+
+        logging.debug("Going to download a spec for %s" % device_urn)
+
+        url = f"{MIOTSPEC_BASE_URL}/instance?type={device_urn}"
+
+        response = self.session.get(url)
+        response.raise_for_status()
+        return response.json()
+
+
+    def miot_get_standard_types(self, type_: str):
+        """Return standardized URNs for a given type.
+
+        The type can be either devices, services, properties, actions, or events.
+        """
+        if type_ not in MIOT_STANDARD_TYPES:
+            raise MiCloudException("Invalid schema type requested: %s" % type_)
+
+        self._init_session(reset=True)
+        url = f"{MIOTSPEC_BASE_URL}/spec/{type_}"
+
+        logging.debug("Going to download definition for type %s" % type_)
+
+        response = self.session.get(url)
+        response.raise_for_status()
+        return response.json()
+
+
+    def miot_get_standard_type_spec(self, type_urn: str):
+        """Return a schema for a standard type URN.
+
+        The response depends on the requested type and contains metadata about
+        the elements the given standard type must and can implement.
+        """
+        splitted_urn = type_urn.split(":")
+        spec_type = splitted_urn[2]
+        namespace = splitted_urn[1]
+        if namespace != "miot-spec-v2":
+            raise MiCloudException("Tried to fetch spec for non-standard namespace %s" % namespace)
+
+        self._init_session(reset=True)
+        url = f"{MIOTSPEC_BASE_URL}/spec/{spec_type}?type={type_urn}"
+
+        response = self.session.get(url)
+        response.raise_for_status()
+        return response.json()
