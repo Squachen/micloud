@@ -6,8 +6,6 @@ from micloud.micloud import MiCloud
 from .miotspec import MiotSpec, MIOT_STANDARD_TYPES
 
 
-pass_miotspec = click.make_pass_decorator(MiotSpec, ensure=True)
-
 @click.group()
 @click.option("-d", "--debug", is_flag=True)
 def cli(debug):
