@@ -1,16 +1,22 @@
 import click
 import json
+import logging
 
-import micloud.micloud
 from micloud.micloud import MiCloud
+from .miotspec import MiotSpec, MIOT_STANDARD_TYPES
 
 
-pass_micloud = click.make_pass_decorator(MiCloud, ensure=True)
+pass_miotspec = click.make_pass_decorator(MiotSpec, ensure=True)
 
 @click.group()
-def cli():
+@click.option("-d", "--debug", is_flag=True)
+def cli(debug):
     """Tool for fetching xiaomi cloud information."""
+    level = logging.INFO
+    if debug:
+        level = logging.DEBUG
 
+    logging.basicConfig(level=level)
 
 @cli.command()
 @click.option('--username', '-u', prompt=True, help='Your Xiaomi username.')
@@ -32,36 +38,33 @@ def get_devices(username, password, country, pretty):
 def miot():
     """Commands for miotspec fetching."""
 
+
 @miot.command(name="specs")
 @click.option("--status", type=str, default="released")
-@pass_micloud
-def miot_specs(micloud: MiCloud, status):
+def miot_specs(status):
     """Return all specs filtered by the given status."""
-    click.echo(json.dumps(micloud.miot_get_specs(status=status)))
+    click.echo(json.dumps(MiotSpec.get_specs(status=status)))
 
 
 @miot.command(name="get-spec")
 @click.argument("urn")
-@pass_micloud
-def miot_get_spec(micloud: MiCloud, urn):
+def miot_get_spec(urn):
     """Return a device spec for the given URN."""
-    click.echo(json.dumps(micloud.miot_get_spec(urn)))
+    click.echo(json.dumps(MiotSpec.get_spec_for_urn(urn)))
 
 
 @miot.command("types")
-@click.argument("type", type=click.Choice(micloud.micloud.MIOT_STANDARD_TYPES))
-@pass_micloud
-def miot_available_standard_types(micloud: MiCloud, type: str):
+@click.argument("type", type=click.Choice(MIOT_STANDARD_TYPES))
+def miot_available_standard_types(type: str):
     """Return available standard URNs for type. """
-    click.echo(json.dumps(micloud.miot_get_standard_types(type)))
+    click.echo(json.dumps(MiotSpec.get_standard_types(type)))
 
 
 @miot.command("get-type-spec")
-@click.argument("urn")
-@pass_micloud
-def miot_get_standard_type_spec(micloud: MiCloud, urn: str):
+@click.argument("urn", required=False)
+def miot_get_standard_type_spec(urn: str):
     """Return a type spec for given type URN."""
-    click.echo(json.dumps(micloud.miot_get_standard_type_spec(urn)))
+    click.echo(json.dumps(MiotSpec.get_standard_type_spec(urn)))
 
 if __name__ == "__main__":
     cli()
