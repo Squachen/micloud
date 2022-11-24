@@ -6,7 +6,6 @@
 # email sammy@ssvensson.se
 # -----------------------------------------------------------
 
-import http.client, http.cookies
 import json
 import hashlib
 import logging
@@ -15,7 +14,8 @@ import tzlocal
 import requests
 
 from micloud import miutils
-from micloud.micloudexception import MiCloudAccessDenied, MiCloudException
+from .miutils import get_session
+from .micloudexception import MiCloudAccessDenied, MiCloudException
 
 
 MIOTSPEC_BASE_URL = "https://miot-spec.org/miot-spec-v2"
@@ -27,7 +27,7 @@ MIOT_STANDARD_TYPES = {"devices": "device",
                        "events": "event"
 }
 
-class MiCloud():
+class MiCloud:
 
     def __init__(self, username=None, password=None):
         super().__init__()
@@ -40,8 +40,6 @@ class MiCloud():
 
         self.failed_logins = 0 
 
-        self.agent_id = miutils.get_random_agent_id()
-        self.useragent = "Android-7.1.1-1.0.0-ONEPLUS A3010-136-" + self.agent_id + " APP/xiaomi.smarthome APPV/62830"
         self.locale = locale.getdefaultlocale()[0]
 
         timezone = datetime.datetime.now(tzlocal.get_localzone()).strftime('%z')
@@ -51,10 +49,6 @@ class MiCloud():
         self.default_server = 'de' # Sets default server to Europe.
         self.username = username
         self.password = password
-
-        self.client_id = miutils.get_random_string(6)
-
-
 
 
     def get_token(self):
@@ -135,12 +129,9 @@ class MiCloud():
 
     def _init_session(self, reset=False):
         if not self.session or reset:
-            self.session = requests.Session()
-            self.session.headers.update({'User-Agent': self.useragent})
-            self.session.cookies.update({
-                'sdkVersion': '3.8.6',
-                'deviceId': self.client_id
-            })
+            if self.session is not None:
+                self.session.close()
+            self.session = get_session()
 
 
     def _login_step1(self):
@@ -298,9 +289,8 @@ class MiCloud():
 
         logging.debug("Send request: %s to %s", params['data'], url)
 
-        self.session = requests.Session()
+        self._init_session(reset=True)
         self.session.headers.update({
-            'User-Agent': self.useragent,
             'Accept-Encoding': 'identity',
             'x-xiaomi-protocal-flag-cli': 'PROTOCAL-HTTP2',
             'content-type': 'application/x-www-form-urlencoded',

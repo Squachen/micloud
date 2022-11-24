@@ -10,10 +10,11 @@ import time
 import random
 import hashlib, hmac, base64
 import string
+import requests
 from urllib.parse import urlparse
 from Crypto.Cipher import ARC4
 
-from micloud.micloudexception import MiCloudException
+from .micloudexception import MiCloudException
 
 
 def get_random_agent_id():
@@ -113,3 +114,19 @@ def decrypt_rc4(password, payload):
     r = ARC4.new(base64.b64decode(password))
     r.encrypt(bytes(1024))
     return r.encrypt(base64.b64decode(payload))
+
+
+def get_session():
+    """Create client session with pre-defined common headers."""
+    agent_id = get_random_agent_id()
+    client_id = get_random_string(6)
+    useragent = "Android-7.1.1-1.0.0-ONEPLUS A3010-136-" + agent_id + " APP/xiaomi.smarthome APPV/62830"
+
+    session = requests.Session()
+    session.headers.update({'User-Agent': useragent})
+    session.cookies.update({
+        'sdkVersion': '3.8.6',
+        'deviceId': client_id
+    })
+
+    return session
