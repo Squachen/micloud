@@ -6,7 +6,6 @@
 # email sammy@ssvensson.se
 # -----------------------------------------------------------
 
-import http.client, http.cookies
 import json
 import hashlib
 import logging
@@ -15,12 +14,14 @@ import tzlocal
 import requests
 
 from micloud import miutils
-from micloud.micloudexception import MiCloudAccessDenied, MiCloudException
+from .miutils import get_session
+from .micloudexception import MiCloudAccessDenied, MiCloudException
 
 
-class MiCloud():
 
-    def __init__(self, username, password):
+class MiCloud:
+
+    def __init__(self, username=None, password=None):
         super().__init__()
         self.user_id =       None
         self.service_token = None
@@ -31,8 +32,6 @@ class MiCloud():
 
         self.failed_logins = 0 
 
-        self.agent_id = miutils.get_random_agent_id()
-        self.useragent = "Android-7.1.1-1.0.0-ONEPLUS A3010-136-" + self.agent_id + " APP/xiaomi.smarthome APPV/62830"
         self.locale = locale.getdefaultlocale()[0]
 
         timezone = datetime.datetime.now(tzlocal.get_localzone()).strftime('%z')
@@ -42,10 +41,6 @@ class MiCloud():
         self.default_server = 'de' # Sets default server to Europe.
         self.username = username
         self.password = password
-        if not self._check_credentials():
-            raise MiCloudException("username or password can't be empty")
-
-        self.client_id = miutils.get_random_string(6)
 
 
     def get_token(self):
@@ -63,6 +58,7 @@ class MiCloud():
         :return: True if login successful, False otherwise.
         """
         if not self._check_credentials():
+            logging.error("You need to define username and password to log in")
             return False
 
         if self.user_id and self.service_token:
@@ -81,7 +77,7 @@ class MiCloud():
             self.service_token = None
             if self.failed_logins > 10:
                 logging.info("Repeated errors logging on to Xiaomi cloud. Cleaning stored cookies")
-                self.self._init_session(reset=True)
+                self._init_session(reset=True)
             return False
         except MiCloudAccessDenied as e:
             logging.info("Access denied when logging on to Xiaomi cloud (%s): %s", self.failed_logins, str(e))
@@ -89,7 +85,7 @@ class MiCloud():
             self.service_token = None
             if self.failed_logins > 10:
                 logging.info("Repeated errors logging on to Xiaomi cloud. Cleaning stored cookies")
-                self.self._init_session(reset=True)
+                self._init_session(reset=True)
             raise e
         except:
             logging.exception("Unknown exception occurred!")
@@ -125,12 +121,9 @@ class MiCloud():
 
     def _init_session(self, reset=False):
         if not self.session or reset:
-            self.session = requests.Session()
-            self.session.headers.update({'User-Agent': self.useragent})
-            self.session.cookies.update({
-                'sdkVersion': '3.8.6',
-                'deviceId': self.client_id
-            })
+            if self.session is not None:
+                self.session.close()
+            self.session = get_session()
 
 
     def _login_step1(self):
@@ -288,9 +281,8 @@ class MiCloud():
 
         logging.debug("Send request: %s to %s", params['data'], url)
 
-        self.session = requests.Session()
+        self._init_session(reset=True)
         self.session.headers.update({
-            'User-Agent': self.useragent,
             'Accept-Encoding': 'identity',
             'x-xiaomi-protocal-flag-cli': 'PROTOCAL-HTTP2',
             'content-type': 'application/x-www-form-urlencoded',
